@@ -25,7 +25,7 @@ if st.button("Generate Next Interview Question"):
     else:
         st.info("**Question:** Walk me through the time complexity of searching a binary search tree in the worst case.")
 
-# User response box
+# User response box and there
 user_answer = st.text_area("Your Response:", placeholder="Type your answer here...")
 
 if st.button("Submit Answer for Evaluation"):
