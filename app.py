@@ -4,7 +4,7 @@ import google.generativeai as genai
 # --- Securely configure the AI ---
 # Streamlit looks in .streamlit/secrets.toml for this key automatically
 genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
-model = genai.GenerativeModel('gemini-1.5-flash')
+model = genai.GenerativeModel('gemini-2.5-flash')
 
 st.set_page_config(page_title="AI Interview Prep Agent", page_icon="🤖")
 
