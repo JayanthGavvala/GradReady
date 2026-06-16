@@ -13,7 +13,7 @@ st.write("Welcome to your 2nd-year prep! Let's test your knowledge.")
 
 # Sidebar
 st.sidebar.header("Interview Settings")
-role = st.sidebar.selectbox("Target Role", ["Machine Learning Engineer", "Data Scientist", "Software Engineer"])
+role = st.sidebar.selectbox("Target Role", ["Machine Learning Engineer", "Data Scientist", "Software Engineer", "Cyber Security"])
 difficulty = st.sidebar.select_slider("Difficulty", options=["Intern", "Junior", "Mid-Level"])
 
 st.subheader(f"Role: {role} ({difficulty})")
@@ -21,6 +21,8 @@ st.subheader(f"Role: {role} ({difficulty})")
 # Determine the question based on role
 if role == "Machine Learning Engineer":
     question = "Explain the difference between L1 and L2 regularization, and how they affect model weights."
+elif role == "Cyber Security":
+    question = "What is phishing."
 elif role == "Data Scientist":
     question = "How would you handle a severe class imbalance dataset when training a fraud detection model?"
 else:
