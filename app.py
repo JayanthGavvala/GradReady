@@ -1,6 +1,6 @@
 import streamlit as st
 
-st.title("AI Interview Prep Agent")
+st.set_page_config(page_title="AI Interview Prep Agent", page_icon="🤖")
 
 st.title("🤖 AI Technical Interview Coach")
 st.write("Welcome, Jayanth! Let's get you ready for 2nd-year internship applications.")
