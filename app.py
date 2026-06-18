@@ -1,12 +1,13 @@
 import streamlit as st
 import google.generativeai as genai
+from streamlit_mic_recorder import speech_to_text # NEW: Import the microphone tool
 
 # --- Securely configure the AI ---
 genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
 model = genai.GenerativeModel('gemini-2.5-flash')
 
 # Set layout to 'centered' for a cleaner look
-st.set_page_config(page_title="Interview AI", page_icon="⚡", layout="centered")
+st.set_page_config(page_title="NexGen Interview AI", page_icon="⚡", layout="centered")
 
 # --- Custom CSS for a Cool Glowing Title ---
 st.markdown("""
@@ -26,7 +27,7 @@ st.markdown("""
         margin-bottom: 30px;
     }
     </style>
-    <div class="gradient-text">Interview AI</div>
+    <div class="gradient-text">NexGen Interview AI</div>
     <div class="subtitle">Powered by Gemini 2.5 ⚡</div>
 """, unsafe_allow_html=True)
 
@@ -37,7 +38,6 @@ with st.sidebar:
     difficulty = st.select_slider("Difficulty Level", options=["Intern", "Junior", "Mid-Level", "Senior"])
     st.divider()
     
-    # We use a button in the sidebar to reset the interview
     if st.button("⚡ Generate New Question", use_container_width=True, type="primary"):
         with st.spinner("Initializing neural link..."):
             question_prompt = f"""
@@ -47,7 +47,6 @@ with st.sidebar:
             """
             response = model.generate_content(question_prompt)
             
-            # Reset the memory for a new question
             st.session_state.current_question = response.text
             st.session_state.user_answer = None
             st.session_state.feedback = None
@@ -62,37 +61,49 @@ if "feedback" not in st.session_state:
 
 # --- Main Chat Interface ---
 if st.session_state.current_question is None:
-    # Empty state before they click the button
     st.info("👈 Configure your settings in the sidebar and click **'Generate New Question'** to begin the simulation.")
 else:
     # 1. Show the Interviewer's Question
     with st.chat_message("assistant", avatar="🤖"):
         st.write(st.session_state.current_question)
 
-    # 2. Show the User's Answer (if they submitted one)
+    # 2. Show the User's Answer
     if st.session_state.user_answer:
         with st.chat_message("user", avatar="💻"):
             st.write(st.session_state.user_answer)
             
-    # 3. Show the AI's Feedback (if it exists)
+    # 3. Show the AI's Feedback
     if st.session_state.feedback:
         with st.chat_message("assistant", avatar="📊"):
             st.markdown(st.session_state.feedback)
 
-# --- Floating Chat Input (Anchors to the bottom of the screen) ---
-# We only show this if a question has been asked, but NO feedback has been given yet
+# --- Voice & Text Input Section ---
 if st.session_state.current_question and not st.session_state.feedback:
-    prompt = st.chat_input("Type your response to the interviewer...")
+    
+    # Show the microphone button
+    st.write("🎙️ **Speak your answer:**")
+    spoken_text = speech_to_text(
+        language='en', 
+        start_prompt="Click to Start Recording", 
+        stop_prompt="🛑 Click to Stop & Submit", 
+        just_once=True,
+        key='STT'
+    )
+    
+    # Show the typing bar
+    typed_text = st.chat_input("...or type your response here")
+    
+    # If the user either spoke OR typed, save it to the 'prompt' variable
+    prompt = spoken_text or typed_text
     
     if prompt:
-        # Save the user's answer
         st.session_state.user_answer = prompt
         
-        # Immediately display it on screen
+        # Display the user's answer
         with st.chat_message("user", avatar="💻"):
             st.write(prompt)
             
-        # Generate and display the feedback
+        # Generate the feedback
         with st.chat_message("assistant", avatar="📊"):
             with st.spinner("Analyzing parameters..."):
                 eval_prompt = f"""
@@ -106,8 +117,5 @@ if st.session_state.current_question and not st.session_state.feedback:
                 eval_response = model.generate_content(eval_prompt)
                 
                 st.markdown(eval_response.text)
-                # Save the feedback to memory so it stays on screen after a refresh
                 st.session_state.feedback = eval_response.text
-                
-                # Small visual flair
-                st.toast('Analysis Complete!', icon='✅') 
+                st.rerun() # Refresh the screen to hide the mic button cleanly
