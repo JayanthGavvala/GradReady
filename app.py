@@ -48,7 +48,7 @@ with st.sidebar:
     st.markdown("### 📄 Resume Context (Optional)")
     # Streamlit's built-in file uploader component
     uploaded_file = st.file_uploader("Upload your CV to get tailored questions", type="pdf")
-    
+   
     cv_text = ""
     if uploaded_file is not None:
         # If a file is uploaded, use PyPDF2 to read all the pages and turn it into text
