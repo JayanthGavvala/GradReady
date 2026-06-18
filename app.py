@@ -26,7 +26,7 @@ st.markdown("""
         margin-bottom: 30px;
     }
     </style>
-    <div class="gradient-text">NexGen Interview AI</div>
+    <div class="gradient-text">Interview AI</div>
     <div class="subtitle">Powered by Gemini 2.5 ⚡</div>
 """, unsafe_allow_html=True)
 
