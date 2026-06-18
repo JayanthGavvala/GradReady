@@ -110,4 +110,4 @@ if st.session_state.current_question and not st.session_state.feedback:
                 st.session_state.feedback = eval_response.text
                 
                 # Small visual flair
-                st.toast('Analysis Complete!', icon='✅')
+                st.toast('Analysis Complete!', icon='✅') 
