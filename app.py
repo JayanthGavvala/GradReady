@@ -31,7 +31,7 @@ if "username" not in st.session_state:
 # This dictionary acts as our temporary database storing users and their scores
 if "user_database" not in st.session_state:
     st.session_state.user_database = {} 
-if "current_question" not in st.session_state:
+if "current_question" not in st.session_staten:
     st.session_state.current_question = None
 if "user_answer" not in st.session_state:
     st.session_state.user_answer = None
