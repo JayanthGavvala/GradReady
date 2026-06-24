@@ -7,46 +7,84 @@ import re
 from google.cloud import firestore
 from google.oauth2 import service_account
 
-
 # ──────────────────────────────────────────────────────────────────────────────
 # 1. PAGE CONFIG & CSS
 # ──────────────────────────────────────────────────────────────────────────────
-st.set_page_config(page_title="NexGen Interview AI", page_icon="⚡", layout="centered")
+st.set_page_config(page_title="GradReady — AI Interview Prep", page_icon="🎓", layout="centered")
 
 st.markdown("""
     <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
     html, body, [class*="css"] {
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
         scroll-behavior: smooth;
     }
+
     header {visibility: hidden;}
     footer {visibility: hidden;}
+
+    /* ── Hero ── */
+    .hero-wrap {
+        text-align: center;
+        padding: 48px 0 12px 0;
+    }
+    .hero-eyebrow {
+        display: inline-block;
+        font-size: 0.72rem;
+        font-weight: 600;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: #7C3AED;
+        background: #EDE9FE;
+        border-radius: 99px;
+        padding: 4px 14px;
+        margin-bottom: 20px;
+    }
     .hero-title {
-        font-size: 3.5rem !important;
-        font-weight: 800 !important;
-        background: -webkit-linear-gradient(45deg, #FF3366, #FF9933);
+        font-size: 3.2rem;
+        font-weight: 800;
+        line-height: 1.08;
+        letter-spacing: -0.04em;
+        color: #0F0A1E;
+        margin-bottom: 0;
+    }
+    .hero-title span {
+        background: linear-gradient(135deg, #7C3AED 0%, #2563EB 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
-        text-align: center;
-        letter-spacing: -0.05em;
-        margin-bottom: 0px !important;
-        padding-bottom: 0px !important;
-        line-height: 1.1;
     }
     .hero-subtitle {
-        text-align: center;
-        font-size: 1.2rem;
-        color: #888;
-        margin-top: 10px;
-        margin-bottom: 50px;
-        font-weight: 300;
+        font-size: 1.05rem;
+        color: #6B7280;
+        margin-top: 14px;
+        font-weight: 400;
+        line-height: 1.6;
     }
+
+    /* ── Section labels ── */
     .section-header {
-        font-size: 2rem;
+        font-size: 1.6rem;
         font-weight: 700;
-        margin-top: 60px;
-        margin-bottom: 20px;
-        letter-spacing: -0.02em;
+        margin-top: 52px;
+        margin-bottom: 16px;
+        letter-spacing: -0.03em;
+        color: #0F0A1E;
+    }
+
+    /* ── Year badge pills ── */
+    .year-desc {
+        font-size: 0.78rem;
+        color: #6B7280;
+        margin-top: 2px;
+    }
+
+    /* ── Stat cards ── */
+    [data-testid="stMetric"] {
+        background: #F9F7FF;
+        border: 1px solid #EDE9FE;
+        border-radius: 12px;
+        padding: 16px 20px !important;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -64,24 +102,15 @@ except Exception:
 
 @st.cache_resource
 def get_database():
-    """
-    Connects to Firestore using credentials stored in secrets.toml.
-    Returns a Firestore client, or None if Firebase is not configured.
-    """
     if "firebase" not in st.secrets:
         return None
     try:
         creds_dict = dict(st.secrets["firebase"])
-        # Firestore requires a Credentials object, not a raw dict.
-        # This is the correct way to build it from a service account dict.
         credentials = service_account.Credentials.from_service_account_info(
             creds_dict,
             scopes=["https://www.googleapis.com/auth/cloud-platform"],
         )
-        return firestore.Client(
-            project=creds_dict["project_id"],
-            credentials=credentials,
-        )
+        return firestore.Client(project=creds_dict["project_id"], credentials=credentials)
     except Exception as e:
         st.warning(f"Firebase connection failed: {e}")
         return None
@@ -93,20 +122,14 @@ db = get_database()
 # 3. DATABASE HELPERS
 # ──────────────────────────────────────────────────────────────────────────────
 def _user_doc_ref(username: str):
-    """Returns the Firestore DocumentReference for a given username."""
     return (
         db.collection("artifacts")
-        .document("ai-interview-app")
+        .document("gradready-app")
         .collection("users")
         .document(username)
     )
 
-
 def save_session_to_db(username: str, session_data: dict) -> bool:
-    """
-    Appends a single interview session to the user's Firestore document.
-    Returns True on success, False on failure.
-    """
     if not db or not username:
         return False
     try:
@@ -119,12 +142,7 @@ def save_session_to_db(username: str, session_data: dict) -> bool:
         st.warning(f"Cloud save failed: {e}")
         return False
 
-
 def load_user_history(username: str) -> list:
-    """
-    Loads the full interview history for a username from Firestore.
-    Returns an empty list if the user doesn't exist yet.
-    """
     if not db or not username:
         return []
     try:
@@ -135,13 +153,59 @@ def load_user_history(username: str) -> list:
         st.warning(f"Cloud load failed: {e}")
     return []
 
+# ──────────────────────────────────────────────────────────────────────────────
+# 4. CONSTANTS
+# ──────────────────────────────────────────────────────────────────────────────
+ROLES = [
+    "Software Engineering Intern",
+    "Data Science Intern",
+    "Machine Learning Intern",
+    "Product Management Intern",
+    "Cybersecurity Intern",
+    "DevOps / Cloud Intern",
+    "Frontend Developer Intern",
+    "Backend Developer Intern",
+    "AI / Research Intern",
+    "Business Analyst Intern",
+    "UX / Product Design Intern",
+    "Quantitative Analyst Intern",
+]
+
+YEAR_OPTIONS = {
+    "1st Year": {
+        "label": "1st Year",
+        "desc": "Foundational concepts, no internship experience yet",
+        "interviewer_note": (
+            "The candidate is a first-year university student with limited experience. "
+            "Ask beginner-friendly but still real technical questions. "
+            "Focus on fundamentals, reasoning ability, and eagerness to learn."
+        ),
+    },
+    "2nd Year": {
+        "label": "2nd Year",
+        "desc": "Some coursework projects, possibly a first placement",
+        "interviewer_note": (
+            "The candidate is a second-year university student who has completed core modules "
+            "and may have personal or coursework projects. "
+            "Ask mid-level questions that probe understanding beyond the surface."
+        ),
+    },
+    "3rd Year": {
+        "label": "3rd Year",
+        "desc": "Final year / placement year, strong project portfolio",
+        "interviewer_note": (
+            "The candidate is a final-year or placement-year student expected to hit the ground running. "
+            "Ask challenging, industry-level questions. Probe depth, trade-offs, and real-world thinking."
+        ),
+    },
+}
 
 # ──────────────────────────────────────────────────────────────────────────────
-# 4. SESSION STATE INITIALISATION
+# 5. SESSION STATE
 # ──────────────────────────────────────────────────────────────────────────────
 defaults = {
     "username": "",
-    "logged_in": False,          # NEW: explicit login gate
+    "logged_in": False,
     "current_question": None,
     "user_answer": None,
     "feedback": None,
@@ -154,35 +218,39 @@ for key, val in defaults.items():
         st.session_state[key] = val
 
 # ──────────────────────────────────────────────────────────────────────────────
-# 5. HERO BANNER
+# 6. HERO BANNER
 # ──────────────────────────────────────────────────────────────────────────────
-st.markdown('<div class="hero-title">NexGen Interview AI</div>', unsafe_allow_html=True)
-st.markdown(
-    '<div class="hero-subtitle">Pro-level technical interview prep. Powered by Gemini.</div>',
-    unsafe_allow_html=True,
-)
+st.markdown("""
+<div class="hero-wrap">
+    <div class="hero-eyebrow">🎓 Built for University Students</div>
+    <div class="hero-title">Land Your<br><span>Internship</span></div>
+    <div class="hero-subtitle">
+        AI-powered mock interviews tailored to your year, your role, and your CV.<br>
+        Practice like it's real. Walk in ready.
+    </div>
+</div>
+""", unsafe_allow_html=True)
+
+st.write("")
 
 # ──────────────────────────────────────────────────────────────────────────────
-# 6. LOGIN / ACCOUNT SECTION
+# 7. LOGIN
 # ──────────────────────────────────────────────────────────────────────────────
 if not st.session_state.logged_in:
     with st.container(border=True):
-        st.markdown("#### ☁️ Sign In to Sync Your Progress")
+        st.markdown("#### Sign in to save your progress")
         if db is None:
-            st.info(
-                "Firebase is not configured — progress will only be saved for this session. "
-                "Follow `FIREBASE_SETUP.md` to enable cloud persistence."
-            )
+            st.info("☁️ Firebase not configured — progress saves for this session only.")
 
         col_u, col_btn = st.columns([3, 1])
         with col_u:
             input_username = st.text_input(
                 "Username",
-                placeholder="Enter a username…",
+                placeholder="Pick a username to track your progress…",
                 label_visibility="collapsed",
             )
         with col_btn:
-            login_clicked = st.button("Sign In ➜", use_container_width=True, type="primary")
+            login_clicked = st.button("Let's go →", use_container_width=True, type="primary")
 
         if login_clicked:
             if not input_username.strip():
@@ -191,61 +259,62 @@ if not st.session_state.logged_in:
                 username = input_username.strip()
                 st.session_state.username = username
                 st.session_state.logged_in = True
-
-                # ── LOAD PERSISTENT DATA FROM FIREBASE ──────────────────────
-                with st.spinner("Loading your cloud profile…"):
+                with st.spinner("Loading your profile…"):
                     history = load_user_history(username)
-
                 st.session_state.history_log = history
-                # Rebuild the score chart from loaded history
-                st.session_state.score_history = [
-                    h["score"] for h in history if "score" in h
-                ]
-
+                st.session_state.score_history = [h["score"] for h in history if "score" in h]
                 if history:
-                    st.success(
-                        f"☁️ Welcome back, **{username}**! "
-                        f"Loaded {len(history)} previous interview(s)."
-                    )
+                    st.success(f"Welcome back, **{username}**! {len(history)} session(s) loaded. 🎉")
                 else:
-                    st.success(f"☁️ New profile created for **{username}**. Good luck! 🚀")
+                    st.success(f"Profile created for **{username}**. Time to practise! 🚀")
                 st.rerun()
-
-    # Don't show the rest of the app until the user has signed in
     st.stop()
 
 # ──────────────────────────────────────────────────────────────────────────────
-# Signed-in header bar
+# Signed-in bar
 # ──────────────────────────────────────────────────────────────────────────────
 col_info, col_logout = st.columns([4, 1])
 with col_info:
-    sync_label = "☁️ Cloud Sync ON" if db else "💾 Local Session Only"
+    sync_label = "☁️ Progress syncing" if db else "💾 Session only"
     st.caption(f"Signed in as **{st.session_state.username}** · {sync_label}")
 with col_logout:
-    if st.button("Sign Out", use_container_width=True):
+    if st.button("Sign out", use_container_width=True):
         for key in defaults:
             st.session_state[key] = defaults[key]
         st.rerun()
 
+st.divider()
+
 # ──────────────────────────────────────────────────────────────────────────────
-# 7. CONFIGURATION
+# 8. INTERVIEW SETUP
 # ──────────────────────────────────────────────────────────────────────────────
 with st.container(border=True):
+    st.markdown("#### 🎯 Set Up Your Mock Interview")
+
     col1, col2 = st.columns(2)
     with col1:
+        st.markdown("**What role are you applying for?**")
         role = st.selectbox(
-            "Target Role",
-            ["Software Engineer", "Machine Learning Engineer", "Data Scientist"],
+            "Role",
+            ROLES,
+            label_visibility="collapsed",
+            help="Choose the internship role you're targeting",
         )
     with col2:
-        diff = st.select_slider(
-            "Difficulty Level", ["Intern", "Junior", "Mid-Level", "Senior"]
+        st.markdown("**What year are you in?**")
+        year_choice = st.radio(
+            "Year",
+            options=list(YEAR_OPTIONS.keys()),
+            label_visibility="collapsed",
+            horizontal=True,
         )
+        st.markdown(f'<div class="year-desc">{YEAR_OPTIONS[year_choice]["desc"]}</div>', unsafe_allow_html=True)
 
     st.divider()
 
     uploaded_file = st.file_uploader(
-        "Upload your CV to personalise questions (PDF)", type="pdf"
+        "📄 Upload your CV for personalised questions (optional, PDF)",
+        type="pdf",
     )
     if uploaded_file:
         pdf_reader = PyPDF2.PdfReader(uploaded_file)
@@ -253,41 +322,48 @@ with st.container(border=True):
         for page in pdf_reader.pages:
             cv_text += page.extract_text() or ""
         st.session_state.cv_context = cv_text
-        st.success("✅ CV processed — questions will be tailored to your experience.")
+        st.success("✅ CV uploaded — questions will be tailored to your projects and experience.")
 
     st.write("")
-    if st.button("Initialize Interview ⚡", use_container_width=True, type="primary"):
+    if st.button("Start Interview ⚡", use_container_width=True, type="primary"):
         try:
-            with st.spinner("Connecting to Neural Interface…"):
+            with st.spinner("Generating your question…"):
+                year_note = YEAR_OPTIONS[year_choice]["interviewer_note"]
+
                 prompt = (
-                    f"You are interviewing a {diff} {role}. "
-                    "Ask ONE concise, specific technical interview question."
+                    f"You are a Senior Engineer at a top tech company interviewing a university student "
+                    f"for a **{role}** position.\n\n"
+                    f"{year_note}\n\n"
+                    "Ask ONE specific, realistic internship interview question. "
+                    "Keep it concise — one question only, no preamble."
                 )
+
                 if st.session_state.cv_context:
                     prompt += (
-                        " The candidate's CV is provided below. "
-                        "Ask a question that digs into a specific project, technology, or "
-                        "decision they made — as a Senior Engineer would in a real interview.\n\n"
+                        "\n\nThe student has uploaded their CV. Read it and ask a question "
+                        "that probes a specific project, technology, or decision they mention — "
+                        "exactly as a real interviewer would.\n\n"
                         f"CV:\n{st.session_state.cv_context}"
                     )
+
                 st.session_state.current_question = model.generate_content(prompt).text
                 st.session_state.user_answer = None
                 st.session_state.feedback = None
         except google.api_core.exceptions.ResourceExhausted:
-            st.error("⚠️ AI Rate Limit reached. Wait 60 seconds and try again.")
+            st.error("⚠️ AI rate limit hit. Wait 60 seconds and try again.")
 
 # ──────────────────────────────────────────────────────────────────────────────
-# 8. LIVE INTERVIEW ARENA
+# 9. LIVE INTERVIEW
 # ──────────────────────────────────────────────────────────────────────────────
 if st.session_state.current_question:
-    st.markdown('<div class="section-header">Live Interview</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-header">🎤 Your Interview</div>', unsafe_allow_html=True)
 
     with st.container(border=True):
         with st.chat_message("assistant", avatar="🤖"):
             st.write(st.session_state.current_question)
 
         if st.session_state.user_answer:
-            with st.chat_message("user", avatar="💻"):
+            with st.chat_message("user", avatar="🎓"):
                 st.write(st.session_state.user_answer)
 
         if st.session_state.feedback:
@@ -306,35 +382,36 @@ if st.session_state.current_question:
                 )
             with col2:
                 st.write("⌨️ **Text:**")
-                typed = st.chat_input("Type your response here…")
+                typed = st.chat_input("Type your answer here…")
 
             ans = spoken or typed
             if ans:
                 st.session_state.user_answer = ans
                 try:
-                    with st.spinner("Analysing your answer…"):
+                    with st.spinner("Evaluating your answer…"):
                         eval_prompt = f"""
-You are a strict but fair Senior Engineer conducting a technical interview.
+You are a Senior Engineer evaluating a university student's answer in a mock internship interview.
 
+Role they're applying for: {role}
+Student year: {year_choice}
 Question asked: '{st.session_state.current_question}'
-Candidate's answer: '{ans}'
+Student's answer: '{ans}'
 
-Evaluate the answer. Call out:
-- What they got right
-- What key concepts or depth was missing
-- Any inaccuracies
+Give honest, constructive feedback a real interviewer would give. Cover:
+- ✅ What they got right
+- ❌ What was missing or could be stronger
+- 💡 One concrete tip to improve their answer
 
-CRITICAL: End your response with EXACTLY this line (no extra text after it):
+Be encouraging but don't sugarcoat gaps — students need real feedback to improve.
+
+CRITICAL: End your response with EXACTLY this line (nothing after it):
 FINAL_SCORE: X
 (where X is a whole number from 0 to 10)
 """
                         feedback_text = model.generate_content(eval_prompt).text
                         st.session_state.feedback = feedback_text
 
-                        # Extract numeric score
-                        match = re.search(
-                            r"FINAL_SCORE:\s*([0-9]+(?:\.[0-9]+)?)", feedback_text
-                        )
+                        match = re.search(r"FINAL_SCORE:\s*([0-9]+(?:\.[0-9]+)?)", feedback_text)
                         score_val = float(match.group(1)) if match else 0.0
                         st.session_state.score_history.append(score_val)
 
@@ -343,55 +420,51 @@ FINAL_SCORE: X
                             "answer": ans,
                             "feedback": feedback_text,
                             "score": score_val,
+                            "role": role,
+                            "year": year_choice,
                         }
                         st.session_state.history_log.append(session_data)
 
-                        # ── PERSIST TO FIREBASE ──────────────────────────────
                         if st.session_state.username:
-                            saved = save_session_to_db(
-                                st.session_state.username, session_data
-                            )
-                            # Silent save — no success toast needed in the flow
+                            save_session_to_db(st.session_state.username, session_data)
 
                         st.rerun()
                 except google.api_core.exceptions.ResourceExhausted:
-                    st.error(
-                        "⚠️ Google API Rate Limit reached. Wait 60 seconds before submitting."
-                    )
+                    st.error("⚠️ Rate limit hit. Wait 60 seconds before submitting.")
 
 # ──────────────────────────────────────────────────────────────────────────────
-# 9. PERFORMANCE DASHBOARD
+# 10. PERFORMANCE DASHBOARD
 # ──────────────────────────────────────────────────────────────────────────────
 if st.session_state.score_history:
-    st.markdown(
-        '<div class="section-header">Performance Metrics</div>', unsafe_allow_html=True
-    )
+    st.markdown('<div class="section-header">📈 Your Progress</div>', unsafe_allow_html=True)
 
-    col1, col2 = st.columns(2)
+    col1, col2, col3 = st.columns(3)
     with col1:
         with st.container(border=True):
-            st.metric("Interviews Completed", len(st.session_state.score_history))
+            st.metric("Sessions Done", len(st.session_state.score_history))
     with col2:
         with st.container(border=True):
             avg = sum(st.session_state.score_history) / len(st.session_state.score_history)
-            st.metric("Average Score", f"{avg:.1f} / 10.0")
+            st.metric("Average Score", f"{avg:.1f} / 10")
+    with col3:
+        with st.container(border=True):
+            best = max(st.session_state.score_history)
+            st.metric("Personal Best", f"{best:.0f} / 10")
 
     with st.container(border=True):
-        st.subheader("Progress Trend")
+        st.subheader("Score trend")
         st.line_chart(st.session_state.score_history)
 
 # ──────────────────────────────────────────────────────────────────────────────
-# 10. ARCHIVED TRANSCRIPTS & EXPORT
+# 11. TRANSCRIPT LOG & EXPORT
 # ──────────────────────────────────────────────────────────────────────────────
 if st.session_state.history_log:
-    st.markdown(
-        '<div class="section-header">Response Logs & Export</div>', unsafe_allow_html=True
-    )
+    st.markdown('<div class="section-header">📝 Past Sessions</div>', unsafe_allow_html=True)
 
-    report_lines = ["NEXGEN INTERVIEW AI REPORT", "=" * 60, ""]
+    report_lines = ["GRADREADY — INTERVIEW TRANSCRIPT", "=" * 60, ""]
     for i, log in enumerate(st.session_state.history_log, start=1):
         report_lines += [
-            f"SESSION {i} | SCORE: {log.get('score', 'N/A')}/10",
+            f"SESSION {i} | {log.get('role', 'N/A')} | {log.get('year', 'N/A')} | SCORE: {log.get('score', 'N/A')}/10",
             f"Question:  {log['question'].strip()}",
             f"Answer:    {log['answer'].strip()}",
             f"Feedback:\n{log['feedback'].strip()}",
@@ -403,9 +476,9 @@ if st.session_state.history_log:
     col_dl, _ = st.columns([1, 2])
     with col_dl:
         st.download_button(
-            label="📥 Export Full Transcripts (.txt)",
+            label="📥 Export Transcripts (.txt)",
             data=report_text,
-            file_name="nexgen_interview_transcript.txt",
+            file_name="gradready_transcript.txt",
             mime="text/plain",
             use_container_width=True,
         )
@@ -414,9 +487,11 @@ if st.session_state.history_log:
 
     for idx, log in enumerate(reversed(st.session_state.history_log)):
         real_index = len(st.session_state.history_log) - idx
+        role_tag = log.get("role", "")
+        year_tag = log.get("year", "")
         with st.expander(
-            f"📝 Session {real_index}: {log['question'][:55]}… (Score: {log.get('score', '?')}/10)"
+            f"Session {real_index} · {role_tag} · {year_tag} · Score: {log.get('score', '?')}/10"
         ):
-            st.markdown(f"**Interviewer:**\n{log['question']}")
+            st.markdown(f"**Question:**\n{log['question']}")
             st.markdown(f"**Your Answer:**\n*{log['answer']}*")
-            st.markdown(f"**Evaluation:**\n{log['feedback']}")
+            st.markdown(f"**Feedback:**\n{log['feedback']}")
