@@ -79,14 +79,20 @@ st.markdown("""
         margin-top: 2px;
     }
 
-    /* ── Stat cards ── */
     [data-testid="stMetric"] {
-        background: #F9F7FF;
-        border: 1px solid #EDE9FE;
+        background: #1A1A1A;
+        border: 1px solid #EF4444;
         border-radius: 12px;
         padding: 16px 20px !important;
+        color: #FFFFFF !important;
     }
-    </style>
+    
+[data-testid="stMetric"] label,
+[data-testid="stMetric"] [data-testid="stMetricValue"],
+[data-testid="stMetricLabel"] {
+    color: #FFFFFF !important;
+}
+            
 """, unsafe_allow_html=True)
 
 # ──────────────────────────────────────────────────────────────────────────────
