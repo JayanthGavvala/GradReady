@@ -120,7 +120,7 @@ __pycache__/
 
 ---
 
-## 📈 Roadmap
+##  Roadmap
 
 - [ ] PDF export of interview transcripts
 - [ ] Global leaderboard to compare scores with other students
@@ -129,7 +129,7 @@ __pycache__/
 
 ---
 
-## 💡 Why I Made This
+## Why I Made This
 
 Internship applications are brutal, especially when you are at uni and do not have much experience yet. I wanted something that would actually simulate a real interview — one that knew what *I* had worked on and could push me on it. I could not find that, so I built it.
 
