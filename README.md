@@ -1,4 +1,4 @@
-# 🎓 GradReady — AI Interview Prep for University Students
+#  GradReady — AI Interview Prep for University Students
 
 I built this because I was stressed.
 
@@ -10,7 +10,7 @@ What started as a personal tool to help me practise turned into a full project I
 
 ---
 
-## ✨ What It Actually Does
+##  What It Actually Does
 
 You upload your CV, pick the role you're applying for and your year of study, and GradReady generates interview questions based on *your actual experience* — not generic textbook stuff. It reads your CV and asks you about the projects you've listed, the technologies you've used, and the decisions you've made. Just like a real interviewer would.
 
@@ -20,7 +20,7 @@ Everything saves to the cloud, so your history and your score graph are there ev
 
 ---
 
-## 🚀 Features
+##  Features
 
 - **CV-aware questions** — upload your PDF and the AI asks about your specific projects and tech stack, not generic questions
 - **Role-specific interviews** — choose from 12 internship roles including SWE, Data Science, ML, Product, Cybersecurity, DevOps, and more
@@ -33,7 +33,7 @@ Everything saves to the cloud, so your history and your score graph are there ev
 
 ---
 
-## 🛠️ Tech Stack
+##  Tech Stack
 
 | Layer | Tech |
 |---|---|
@@ -45,7 +45,7 @@ Everything saves to the cloud, so your history and your score graph are there ev
 
 ---
 
-## 🖥️ Running It Locally
+## Running It Locally
 
 ### 1. Clone the repo
 
@@ -90,7 +90,7 @@ client_x509_cert_url        = "your-cert-url"
 
 > You will need a Gemini API key from [Google AI Studio](https://aistudio.google.com/app/apikey) and a Firebase service account key from your [Firebase project settings](https://console.firebase.google.com). See `FIREBASE_SETUP.md` for the full walkthrough.
 
-> ⚠️ **Never commit `secrets.toml` to GitHub.** Make sure it is in your `.gitignore`.
+>  **Never commit `secrets.toml` to GitHub.** Make sure it is in your `.gitignore`.
 
 ### 5. Run it
 
@@ -100,7 +100,7 @@ streamlit run app.py
 
 ---
 
-## 🔒 .gitignore
+##  .gitignore
 
 ```gitignore
 # Secrets — never commit these
@@ -135,4 +135,4 @@ Internship applications are brutal, especially when you are at uni and do not ha
 
 If it helps even one other student walk into an interview feeling more prepared than they would have otherwise, that is enough for me.
 
-Good luck with your applications. You have got this. 🚀
+
