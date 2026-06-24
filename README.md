@@ -1,20 +1,123 @@
-⚡ NexGen AI Interview SimulatorAn AI-powered, full-stack web application designed to simulate technical interview "deep dives."Instead of generic LeetCode questions, this application parses a user's uploaded CV and generates highly specific, contextual interview questions based on their actual past projects and listed experience—exactly like a real Senior Engineering interviewer would.✨ Key FeaturesContext-Aware Interviewing: Uses PyPDF2 to extract text from uploaded CVs, injecting the user's real experience into the LLM's system prompt to generate highly personalized technical questions.Multi-Modal Responses: Integrates browser-based Speech-to-Text (streamlit-mic-recorder), allowing users to practice speaking their answers out loud, or fallback to standard text input.Instant AI Feedback: Leverages the Google Gemini 2.5 API to act as a strict technical interviewer, evaluating answers for accuracy, pointing out missing concepts, and grading the response out of 10.Cloud Progress Tracking: Connects to a Google Firebase (Firestore) backend to permanently store user profiles, interview transcripts, and plot historical performance trends on a live dashboard.Modern UI/UX: Built with Streamlit but heavily customized with injected CSS to create a sleek, single-page "scrollytelling" interface native to modern SaaS platforms.🛠️ Tech StackFrontend: Python, Streamlit, HTML/CSS (Custom styling)Backend: Google Firebase (Firestore Cloud Database)AI/LLM: Google Generative AI (Gemini 2.5 Flash)Utilities: PyPDF2 (Document parsing), Streamlit Mic Recorder (Audio processing), RegEx (Data extraction)🚀 Running the Project LocallyIf you would like to run this application on your local machine, follow these steps:1. Clone the repositorygit clone [https://github.com/jayanthgavvala/ai-interview-prep-agent.git](https://github.com/jayanthgavvala/ai-interview-prep-agent.git)
+# ⚡ NexGen AI Interview Simulator
+
+> An AI-powered interview prep tool that reads your CV and grills you on your *actual* experience — just like a real Senior Engineer would.
+
+Instead of generic LeetCode drills, NexGen parses your uploaded CV and generates highly specific, contextual technical questions based on your real past projects and listed experience.
+
+---
+
+## ✨ Features
+
+- **Context-Aware Interviewing** — Extracts text from your uploaded CV via `PyPDF2` and injects your real experience into the LLM's system prompt, generating questions tailored specifically to *you*.
+- **Multi-Modal Responses** — Practice answering out loud with browser-based Speech-to-Text (`streamlit-mic-recorder`), or fall back to standard text input.
+- **Instant AI Feedback** — Powered by Google Gemini 2.5 Flash, acting as a strict technical interviewer: evaluating accuracy, surfacing missing concepts, and grading each answer out of 10.
+- **Cloud Progress Tracking** — Google Firebase (Firestore) stores your profile, full interview transcripts, and historical performance trends on a live dashboard.
+- **Modern UI/UX** — Streamlit with custom-injected CSS for a sleek, single-page interface that feels native to modern SaaS platforms.
+
+---
+
+## 🛠️ Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Frontend | Python, Streamlit, HTML/CSS (custom styling) |
+| Backend | Google Firebase (Firestore) |
+| AI / LLM | Google Generative AI (Gemini 2.5 Flash) |
+| Utilities | PyPDF2, streamlit-mic-recorder, RegEx |
+
+---
+
+## 🚀 Getting Started
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/jayanthgavvala/ai-interview-prep-agent.git
 cd ai-interview-prep-agent
-2. Set up a Virtual Environmentpython3 -m venv venv
-source venv/bin/activate  # On Windows use `venv\Scripts\activate`
-3. Install Dependenciespip install -r requirements.txt
-4. Configure Environment SecretsYou will need a Gemini API Key and a Google Firebase Service Account JSON.Create a folder named .streamlit in the root directory, and inside it, create a file named secrets.toml. Format it like this:GEMINI_API_KEY = "your_gemini_api_key_here"
+```
+
+### 2. Set up a virtual environment
+
+```bash
+python3 -m venv venv
+source venv/bin/activate        # Windows: venv\Scripts\activate
+```
+
+### 3. Install dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+### 4. Configure environment secrets
+
+Create a `.streamlit/` folder in the project root, then add a `secrets.toml` file inside it:
+
+```toml
+GEMINI_API_KEY = "your_gemini_api_key_here"
 
 [firebase]
-type = "service_account"
-project_id = "your_project_id"
-private_key_id = "your_private_key_id"
-private_key = "-----BEGIN PRIVATE KEY-----\nYour_Key_Here\n-----END PRIVATE KEY-----\n"
-client_email = "your_client_email"
-client_id = "your_client_id"
-auth_uri = "[https://accounts.google.com/o/oauth2/auth](https://accounts.google.com/o/oauth2/auth)"
-token_uri = "[https://oauth2.googleapis.com/token](https://oauth2.googleapis.com/token)"
-auth_provider_x509_cert_url = "[https://www.googleapis.com/oauth2/v1/certs](https://www.googleapis.com/oauth2/v1/certs)"
-client_x509_cert_url = "your_cert_url"
-⚠️ SECURITY WARNING: Never commit your secrets.toml file to GitHub! Ensure .streamlit/secrets.toml is included in your .gitignore file.5. Launch the Applicationstreamlit run app.py
-📈 Future RoadmapImplementing an "Export Transcript" feature to download PDF reports of past interview sessions.Adding a global leaderboard for users to compare their average scores against other candidates.
+type                        = "service_account"
+project_id                  = "your_project_id"
+private_key_id              = "your_private_key_id"
+private_key                 = "-----BEGIN PRIVATE KEY-----\nYour_Key_Here\n-----END PRIVATE KEY-----\n"
+client_email                = "your_client_email"
+client_id                   = "your_client_id"
+auth_uri                    = "https://accounts.google.com/o/oauth2/auth"
+token_uri                   = "https://oauth2.googleapis.com/token"
+auth_provider_x509_cert_url = "https://www.googleapis.com/oauth2/v1/certs"
+client_x509_cert_url        = "your_cert_url"
+```
+
+> **⚠️ Security:** Never commit `secrets.toml` to version control.  
+> Make sure `.streamlit/secrets.toml` is listed in your `.gitignore` (see below).
+
+### 5. Launch the app
+
+```bash
+streamlit run app.py
+```
+
+---
+
+## 🔒 `.gitignore` (recommended)
+
+Ensure the following entries are present to keep secrets and environment files out of your repository:
+
+```gitignore
+# Secrets
+.streamlit/secrets.toml
+
+# Python virtual environment
+venv/
+.env
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# OS artefacts
+.DS_Store
+Thumbs.db
+```
+
+---
+
+## 📈 Roadmap
+
+- [ ] **Export Transcripts** — Download PDF reports of past interview sessions.
+- [ ] **Global Leaderboard** — Compare your average scores against other candidates.
+
+---
+
+## 🤝 Contributing
+
+Pull requests are welcome. For major changes, please open an issue first to discuss what you'd like to change.
+
+---
+
+## 📄 License
+
+[MIT](LICENSE)
