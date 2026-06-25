@@ -232,7 +232,6 @@ st.markdown("""
     <div class="hero-title">Land Your<br><span>Internship</span></div>
     <div class="hero-subtitle">
         AI-powered mock interviews tailored to your year, your role, and your CV.<br>
-        Practice like it's real. Walk in ready.
     </div>
 </div>
 """, unsafe_allow_html=True)
